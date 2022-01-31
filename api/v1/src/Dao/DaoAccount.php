@@ -19,7 +19,7 @@ class DaoAccount
         $account = new Account($id, $amount);
         if($account) {
             $_SESSION['accounts'][$id]['balance'] = $amount;
-            return $account;
+            return true;
         }
         else {
             return false;
@@ -32,7 +32,7 @@ class DaoAccount
 
         if(isset($_SESSION['accounts'][$id])) {
             $_SESSION['accounts'][$id]['balance'] = $balance;
-            return $account;
+            return true;
         }
         else {
             return false;

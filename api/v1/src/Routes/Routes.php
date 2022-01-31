@@ -35,11 +35,18 @@ return function (App $app)
      */
     $app->post('/event', function (Request $request, Response $response) {
         $payload = ControllerAccount::event($request);
-        $payload = json_encode($payload);
-        $response->getBody()->write($payload);
-        return $response
-            ->withHeader('Content-Type', 'application/json')
-            ->withStatus(200);
+        if($payload) {
+            $payload = json_encode($payload);
+            $response->getBody()->write($payload);
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(200);
+        }
+        else {
+            $response->getBody()->write('0');
+            return $response
+                ->withStatus(404);
+        }
     });
 
     /**

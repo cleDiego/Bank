@@ -8,7 +8,7 @@ class ControllerAccount
 {
     /**
      * @param Request $request Search type
-     * @return Response $response
+     * @return array|false $response
      */
     public static function event(Request $request)
     {
@@ -18,10 +18,10 @@ class ControllerAccount
         switch($bodyData['type'])
         {
             case 'deposit':
-                $response = $modelAccount->deposit($bodyData['destination'], $bodyData['amount']);
-                return $response;
+                return $modelAccount->deposit($bodyData['destination'], $bodyData['amount']);
             break;
             case 'withdraw':
+                return $modelAccount->withdraw($bodyData['origin'], $bodyData['amount']);
             break;
             case 'transfer':
             break;
