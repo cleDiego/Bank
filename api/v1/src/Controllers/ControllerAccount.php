@@ -24,6 +24,7 @@ class ControllerAccount
                 return $modelAccount->withdraw($bodyData['origin'], $bodyData['amount']);
             break;
             case 'transfer':
+                return $modelAccount->transfer($bodyData['origin'], $bodyData['destination'], $bodyData['amount']);
             break;
         }
 

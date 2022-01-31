@@ -71,7 +71,7 @@ class ModelAccount
         $origin = $daoAccount->getAccount($origin_id);
 
         if($origin) {
-            //create account if not exist
+            //Withdraw
             $balance = $origin->getBalance() - $amount;
             if($balance >= 0) {
                 $origin->setBalance($balance);
@@ -84,6 +84,71 @@ class ModelAccount
                     );
                 }
                 else {
+                    $payload = array(
+                        "error" => array(
+                            "message" => "Não foi possível realizar a transação"
+                        )
+                    );
+                }
+
+            }
+            else {
+                $payload = array(
+                    "error" => array(
+                        "message" => "Não há saldo suficiente para realizar esta transação, seu saldo: R$".$origin->getBalance()
+                    )
+                );
+            }
+        }
+        else {
+            $payload = false;
+        }
+        return $payload;
+    }
+
+    /**
+     * @param string $origin_id
+     * @param string $destionation_id
+     * @param double $amount
+     * @return array|false $payload
+     */
+    public function transfer($origin_id, $destination_id, $amount = 0)
+    {
+        //find account by id
+        $daoAccount = new DaoAccount();
+        $origin = $daoAccount->getAccount($origin_id);
+        $destination = $daoAccount->getAccount($destination_id);
+
+        if($origin && $destination) {
+            //Transfer
+            $balance_origin = $origin->getBalance();
+            $balance_destination = $destination->getBalance();
+
+            $new_balance_origin = $origin->getBalance() - $amount;
+            $new_balance_destination = $destination->getBalance() + $amount;
+
+            if($new_balance_origin >= 0) {
+                $origin->setBalance($new_balance_origin);
+                $destination->setBalance($new_balance_destination);
+
+                if($daoAccount->updateAccount($origin) && $daoAccount->updateAccount($destination)) {
+                    $payload = array(
+                        "origin" => array(
+                            "id"        => $origin_id,
+                            "balance"   => $new_balance_origin,
+                        ),
+                        "destination" => array(
+                            "id"        => $destination_id,
+                            "balance"   => $new_balance_destination,
+                        )
+                    );
+                }
+                else {
+                    $origin->setBalance($balance_origin);
+                    $destination->setBalance($balance_destination);
+                    $daoAccount->updateAccount($origin);
+                    $daoAccount->updateAccount($destination);
+
                     $payload = array(
                         "error" => array(
                             "message" => "Não foi possível realizar a transação"
