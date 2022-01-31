@@ -1,5 +1,5 @@
 <?php
-namespace Bank\App;
+namespace Bank\Utils;
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
