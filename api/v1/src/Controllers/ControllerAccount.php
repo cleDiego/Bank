@@ -7,6 +7,16 @@ use Bank\Models\ModelAccount;
 class ControllerAccount
 {
     /**
+     * @param string $account
+     * @return array|false $response
+     */
+    public static function balance($account_id)
+    {
+        $modelAccount = new ModelAccount();
+        return $modelAccount->balance($account_id);
+    }
+
+    /**
      * @param Request $request Search type
      * @return array|false $response
      */

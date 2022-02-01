@@ -29,7 +29,29 @@ return function (App $app)
     });
 
     /**
-     * Event route
+     * Balance route
+     * @param Request
+     * @return Response
+     */
+    $app->get('/balance', function (Request $request, Response $response) {
+        $queryParams = $request->getQueryParams();
+        $balance = (string) ControllerAccount::balance($queryParams['account_id']);
+
+        if($balance) {
+            $response->getBody()->write($balance);
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(200);
+        }
+        else {
+            $response->getBody()->write('0');
+            return $response
+                ->withStatus(404);
+        }
+    });
+
+    /**
+     * Event route, $request[type] = deposit|withdraw|transfer
      * @param Request
      * @return Response
      */

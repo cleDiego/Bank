@@ -7,6 +7,25 @@ class ModelAccount
 {
 
     /**
+     * @param string $origin_id
+     * @param double $amount
+     * @return array|false $payload
+     */
+    public function balance($account_id)
+    {
+        //find account by id
+        $daoAccount = new DaoAccount();
+        $account = $daoAccount->getAccount($account_id);
+        if($account) {
+            return $account->getBalance();
+        }
+        else {
+            return false;
+        }
+
+    }
+
+    /**
      * @param string $destination
      * @param double $amount
      * @return array $payload
