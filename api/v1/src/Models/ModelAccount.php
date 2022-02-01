@@ -2,7 +2,6 @@
 namespace Bank\Models;
 use Bank\Dao\DaoAccount;
 
-
 class ModelAccount
 {
 
@@ -49,7 +48,7 @@ class ModelAccount
             else {
                 $payload = array(
                     "error" => array(
-                        "message" => "NÃ£o foi possÃ­vel criar a conta"
+                        "message" => "Não foi possível criar a conta"
                     )
                 );
             }
@@ -69,7 +68,7 @@ class ModelAccount
             else {
                 $payload = array(
                     "error" => array(
-                        "message" => "NÃ£o foi possÃ­vel atualizar a conta"
+                        "message" => "Não foi possível atualizar a conta"
                     )
                 );
             }
@@ -105,7 +104,7 @@ class ModelAccount
                 else {
                     $payload = array(
                         "error" => array(
-                            "message" => "NÃ£o foi possÃ­vel realizar a transaÃ§Ã£o"
+                            "message" => "Não foi possível realizar a transação"
                         )
                     );
                 }
@@ -114,7 +113,7 @@ class ModelAccount
             else {
                 $payload = array(
                     "error" => array(
-                        "message" => "NÃ£o hÃ¡ saldo suficiente para realizar esta transaÃ§Ã£o, seu saldo: R$".$origin->getBalance()
+                        "message" => "Não há saldo suficiente para realizar esta transação, seu saldo: R$".$origin->getBalance()
                     )
                 );
             }
@@ -136,52 +135,31 @@ class ModelAccount
         //find account by id
         $daoAccount = new DaoAccount();
         $origin = $daoAccount->getAccount($origin_id);
-        $destination = $daoAccount->getAccount($destination_id);
-
-        if($origin && $destination) {
+        if($origin) {
             //Transfer
-            $balance_origin = $origin->getBalance();
-            $balance_destination = $destination->getBalance();
-
-            $new_balance_origin = $origin->getBalance() - $amount;
-            $new_balance_destination = $destination->getBalance() + $amount;
-
-            if($new_balance_origin >= 0) {
-                $origin->setBalance($new_balance_origin);
-                $destination->setBalance($new_balance_destination);
-
-                if($daoAccount->updateAccount($origin) && $daoAccount->updateAccount($destination)) {
-                    $payload = array(
-                        "origin" => array(
-                            "id"        => $origin_id,
-                            "balance"   => $new_balance_origin,
-                        ),
-                        "destination" => array(
-                            "id"        => $destination_id,
-                            "balance"   => $new_balance_destination,
-                        )
-                    );
-                }
-                else {
-                    $origin->setBalance($balance_origin);
-                    $destination->setBalance($balance_destination);
-                    $daoAccount->updateAccount($origin);
-                    $daoAccount->updateAccount($destination);
-
-                    $payload = array(
-                        "error" => array(
-                            "message" => "NÃ£o foi possÃ­vel realizar a transaÃ§Ã£o"
-                        )
-                    );
-                }
-
-            }
-            else {
+            $withdraw_origin = $this->withdraw($origin_id, $amount);
+            if(!$withdraw_origin['error']) {
+              $deposit_destination = $this->deposit($destination_id, $amount);
+              if(!$deposit_destination['error']) {
                 $payload = array(
-                    "error" => array(
-                        "message" => "NÃ£o hÃ¡ saldo suficiente para realizar esta transaÃ§Ã£o, seu saldo: R$".$origin->getBalance()
+                    "origin" => array(
+                        "id"        => $origin_id,
+                        "balance"   => $this->balance($origin_id),
+                    ),
+                    "destination" => array(
+                        "id"        => $destination_id,
+                        "balance"   => $this->balance($destination_id),
                     )
                 );
+              }
+              else {
+                //deposit into destination error, give back amount to origin
+                $give_back = $this->deposit($origin_id, $amount);
+                $payload = $deposit_destination;
+              }
+            }
+            else {
+              $payload = $withdraw_origin;
             }
         }
         else {
