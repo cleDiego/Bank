@@ -74,7 +74,7 @@ function composerRequirefa5219a0eb1773e6bc4ef908799ea600($fileIdentifier, $file)
 {
     if (empty($GLOBALS['__composer_autoload_files'][$fileIdentifier])) {
         $GLOBALS['__composer_autoload_files'][$fileIdentifier] = true;
-
+        $teste = "Teste Mensagem";
         require $file;
     }
 }
